@@ -1,0 +1,34 @@
+version: '3'
+services:
+  tmfserver:
+    image: lduriez/tmserver:latest
+    network_mode: host
+    volumes:
+      - ./GameData/Profiles:/opt/tmserver/GameData/Profiles
+      - ./GameData/Scores:/opt/tmserver/GameData/Scores
+      - ./GameData/Tracks/MatchSettings/:/opt/tmserver/GameData/Tracks/MatchSettings/
+    environment:
+      SERVER_NAME: My server # if you want colours be warned that $ needs to be escaped by $ in Docker
+      SERVER_DESC: Let's race
+  mysql:
+    image: mysql:5.5
+    network_mode: host
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: my_secret_pw_shh
+      MYSQL_DATABASE: aseco
+      MYSQL_USER: tmf
+      MYSQL_PASSWORD: tmfpass
+  xaseco:
+    image: xaseco:latest
+    network_mode: host
+    depends_on:
+      - "tmfserver"
+      - "mysql"
+    environment:
+      MYSQL_SERVER: '172.20.0.1'
+      MYSQL_LOGIN: tmf
+      MYSQL_PASSWORD: tmfpass
+      ASECO_MASTER_ADMIN: YOUR_TMF_LOGIN
+      SERVER_SA_PASSWORD: SuperAdmin
